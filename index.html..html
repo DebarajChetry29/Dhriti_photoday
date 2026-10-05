@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PhotoDay</title>
+<style>
+:root{--bg:#faf6f1;--card:#fff;--ink:#2a2420;--soft:#7d726a;--acc:#e0603f;--acc2:#fbe7df;--line:#eadfd3;--r:16px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1614;--card:#252019;--ink:#f4ece4;--soft:#a79b91;--acc:#f07a5a;--acc2:#3a2822;--line:#382f28}}
+:root[data-theme="dark"]{--bg:#1a1614;--card:#252019;--ink:#f4ece4;--soft:#a79b91;--acc:#f07a5a;--acc2:#3a2822;--line:#382f28}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+.app{max-width:480px;margin:0 auto;padding:22px 18px 110px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.logo{font-weight:700;letter-spacing:-.02em;font-size:18px}.logo span{color:var(--acc)}
+.pill{font-size:12px;color:var(--soft);border:1px solid var(--line);padding:4px 10px;border-radius:99px}
+h1{font-size:26px;line-height:1.2;margin:4px 0 6px;letter-spacing:-.02em}
+p.s{color:var(--soft);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.lab{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--soft);margin-bottom:10px}
+.moods{display:flex;gap:8px}
+.moods button{flex:1;font-size:24px;padding:10px 0;background:var(--bg);border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.moods button.on{border-color:var(--acc);background:var(--acc2)}
+.reply{margin-top:12px;color:var(--ink);min-height:24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:14px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:7px 14px;cursor:pointer}
+.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.btn{font:inherit;font-weight:600;width:100%;background:var(--acc);color:#fff;border:0;border-radius:12px;padding:13px;cursor:pointer;margin-top:12px}
+.btn.ghost{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.pose{min-height:120px;display:flex;flex-direction:column;justify-content:center}
+.pose b{font-size:20px;line-height:1.3}
+.pose small{color:var(--soft);margin-top:6px}
+.row{display:flex;gap:10px}.row .btn{margin-top:12px}
+.fav{padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.fav:last-child{border:0}
+.tip{border-bottom:1px solid var(--line);padding:12px 0}.tip:last-child{border:0}
+.tip summary{cursor:pointer;font-weight:600}
+.tip p{margin:8px 0 0;color:var(--soft)}
+.ticket{border:2px dashed var(--acc);border-radius:var(--r);padding:16px;margin-top:14px;background:var(--acc2)}
+.ticket h3{margin:0 0 8px;color:var(--acc)}
+.ticket div{font-size:14px;margin:3px 0}
+.note{white-space:pre-line;font-size:17px}
+.sig{margin-top:14px;font-weight:600}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav div{display:flex;width:min(480px,100%)}
+nav button{flex:1;font:inherit;font-size:12px;background:none;border:0;color:var(--soft);padding:12px 0;cursor:pointer}
+nav button.on{color:var(--acc);font-weight:700}
+.tab{display:none}.tab.on{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="logo">Photo<span>Day</span></div><div class="pill" id="who"></div></header>
+
+<section class="tab on" id="t-home">
+  <h1 id="hi"></h1>
+  <p class="s">Quick check-in. How is today going?</p>
+  <div class="card">
+    <div class="lab">Mood</div>
+    <div class="moods" id="moods"></div>
+    <div class="reply" id="reply"></div>
+  </div>
+  <div class="card">
+    <div class="lab">Today's mini challenge</div>
+    <div id="chal"></div>
+  </div>
+</section>
+
+<section class="tab" id="t-pose">
+  <h1>Pose ideas</h1>
+  <p class="s">Pick a vibe, get a pose. Save the ones you like.</p>
+  <div class="card">
+    <div class="chips" id="cats"></div>
+    <div class="pose" id="pose" style="margin-top:14px"><b>Choose a vibe, then tap Next.</b></div>
+    <div class="row"><button class="btn" id="next">Next pose</button><button class="btn ghost" id="save">Save</button></div>
+  </div>
+  <div class="card"><div class="lab">Saved poses</div><div id="favs"><div class="fav" style="color:var(--soft)">Nothing saved yet.</div></div></div>
+</section>
+
+<section class="tab" id="t-plan">
+  <h1>Plan your Photo Day</h1>
+  <p class="s">One hour, your choices. The photographer adapts.</p>
+  <div class="card">
+    <div class="lab">Place</div><div class="chips" data-k="place"></div>
+    <div class="lab" style="margin-top:16px">Time of day</div><div class="chips" data-k="time"></div>
+    <div class="lab" style="margin-top:16px">Style</div><div class="chips" data-k="style"></div>
+    <button class="btn" id="book">Confirm my Photo Day</button>
+    <div id="ticket"></div>
+  </div>
+</section>
+
+<section class="tab" id="t-tips">
+  <h1>Self-photo tips</h1>
+  <p class="s">Small tweaks that make a big difference.</p>
+  <div class="card" id="tips"></div>
+</section>
+
+<section class="tab" id="t-note">
+  <h1>A note</h1>
+  <p class="s">Made for you, nothing expected back.</p>
+  <div class="card"><div class="note" id="note"></div><div class="sig" id="sig"></div></div>
+</section>
+</div>
+
+<nav><div id="nav"></div></nav>
+
+<script>
+// ===== EDIT THESE =====
+var HER = "Dhriti";
+var HIM = "Your Name";
+var NOTE = "I heard today was rough.\nI can't fix the day, but I can make sure you get your photos.\n\nReplace this with your own lines, in your own words.";
+var CHAL = "Take one photo today of something that made you smile, even a tiny thing.";
+// ======================
+var $ = function(id){return document.getElementById(id)};
+function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+$('who').textContent = HER; $('hi').textContent = "Hi " + HER;
+$('note').textContent = NOTE; $('sig').textContent = "- " + HIM; $('chal').textContent = CHAL;
+
+// tabs
+var tabs=[["home","Home"],["pose","Poses"],["plan","Plan"],["tips","Tips"],["note","Note"]];
+tabs.forEach(function(t,i){var b=document.createElement('button');b.textContent=t[1];if(!i)b.className='on';
+ b.onclick=function(){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});$('t-'+t[0]).classList.add('on');
+ document.querySelectorAll('nav button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');window.scrollTo(0,0)};$('nav').appendChild(b)});
+
+// mood
+var moods=[["😞","Rough days happen. You don't have to be okay right now. Open the Poses tab when you feel like it."],["😕","Not great, I get it. Be gentle with yourself today."],["😐","Middle of the road. A small photo might tip it the right way."],["🙂","Good to hear. Keep that going."],["😄","Love it. Let's capture this energy."]];
+var cur=load('mood',-1);
+moods.forEach(function(m,i){var b=document.createElement('button');b.textContent=m[0];if(i===cur)b.className='on';
+ b.onclick=function(){document.querySelectorAll('.moods button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');$('reply').textContent=m[1];store('mood',i)};$('moods').appendChild(b)});
+if(cur>=0)$('reply').textContent=moods[cur][1];
+
+// poses
+var P={Cute:["Chin down, tiny smile, hair over one shoulder","Hug your knees and look at the lens","Hold a small flower or your favourite snack","Look away and smile like you remembered something sweet"],
+ Fun:["Spin once and shoot mid-spin","Serious face, then burst out laughing","Walk toward the camera like you're late","Peace sign, but dramatic"],
+ Bold:["Look straight into the lens, no smile, chin up","Let a shadow cross half your face","Look up into the light with eyes closed","Lean on a wall, one foot up, look away"]};
+var cat="Cute",curPose="",favs=load('favs',[]);
+Object.keys(P).forEach(function(k){var b=document.createElement('button');b.className='chip'+(k===cat?' on':'');b.textContent=k;
+ b.onclick=function(){cat=k;document.querySelectorAll('#cats .chip').forEach(function(x){x.classList.remove('on')});b.classList.add('on');nextPose()};$('cats').appendChild(b)});
+function nextPose(){var a=P[cat],p;do{p=a[Math.floor(Math.random()*a.length)]}while(p===curPose&&a.length>1);curPose=p;
+ $('pose').innerHTML="<b></b><small></small>";$('pose').firstChild.textContent=p;$('pose').lastChild.textContent=cat+" · try it near a window"}
+function showFavs(){var f=$('favs');f.innerHTML="";if(!favs.length){f.innerHTML='<div class="fav" style="color:var(--soft)">Nothing saved yet.</div>';return}
+ favs.forEach(function(x){var d=document.createElement('div');d.className='fav';d.textContent=x;f.appendChild(d)})}
+$('next').onclick=nextPose;
+$('save').onclick=function(){if(curPose&&favs.indexOf(curPose)<0){favs.push(curPose);store('favs',favs);showFavs()}};
+showFavs();
+
+// plan
+var O={place:["Park","Rooftop","Cafe","Campus","Home window"],time:["Morning","Golden hour","Evening"],style:["Casual","Dressed up","Candid","Dramatic"]};
+var sel={};
+document.querySelectorAll('[data-k]').forEach(function(box){var k=box.getAttribute('data-k');
+ O[k].forEach(function(v){var b=document.createElement('button');b.className='chip';b.textContent=v;
+  b.onclick=function(){sel[k]=v;box.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on')});b.classList.add('on')};box.appendChild(b)})});
+$('book').onclick=function(){
+ if(!sel.place||!sel.time||!sel.style){$('ticket').innerHTML='<div style="margin-top:12px;color:var(--soft)">Pick one option in each row first.</div>';return}
+ var txt="Photo Day: "+sel.place+", "+sel.time+", "+sel.style+" style. Photographer: "+HIM;
+ $('ticket').innerHTML='<div class="ticket"><h3>Photo Day confirmed</h3><div>Guest: '+HER+'</div><div>Place: '+sel.place+'</div><div>Time: '+sel.time+'</div><div>Style: '+sel.style+'</div><div>Duration: 1 hour</div><div>Photographer: '+HIM+'</div></div><button class="btn ghost" id="copy">Copy details to send</button>';
+ $('copy').onclick=function(){try{navigator.clipboard.writeText(txt).then(function(){$('copy').textContent="Copied"})}catch(e){$('copy').textContent=txt}}};
+
+// tips
+var T=[["Use window light","Face the window. Soft side light flatters and needs no equipment."],["Golden hour","The hour before sunset gives warm, even light. Great for outdoor shots."],["Camera at eye level or slightly above","It is the most natural angle and keeps proportions realistic."],["Clean the lens","A quick wipe on your sleeve removes the haze that dulls phone photos."],["Take lots of frames","Shoot in bursts. The best one is usually between poses."]];
+T.forEach(function(t){var d=document.createElement('details');d.className='tip';d.innerHTML='<summary></summary><p></p>';d.firstChild.textContent=t[0];d.lastChild.textContent=t[1];$('tips').appendChild(d)});
+</script>
+</body>
+</html>
